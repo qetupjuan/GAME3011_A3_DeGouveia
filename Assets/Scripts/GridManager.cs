@@ -23,6 +23,7 @@ public class GridManager : MonoBehaviour
     public GameObject backgroundPrefab;
 
     private Dictionary<PieceType, GameObject> piecePrefabDict;
+    private Skulls[,] pieces;
 
     void Start()
     {
@@ -40,8 +41,27 @@ public class GridManager : MonoBehaviour
         {
             for (int y = 0; y < gridY; y++)
             {
-                GameObject background = (GameObject)Instantiate(backgroundPrefab, new Vector3(x, y, 0), Quaternion.identity);
+                GameObject background = (GameObject)Instantiate(backgroundPrefab, GetWorldPosition(x, y, 0), Quaternion.identity);
                 background.transform.parent = transform;
+            }
+        }
+
+        pieces = new Skulls[gridX, gridY];
+        for (int x = 0; x < gridX; x++)
+        {
+            for (int y = 0; y < gridY; y++)
+            {
+                GameObject newPiece = (GameObject)Instantiate(piecePrefabDict[PieceType.Normal], Vector3.zero, Quaternion.identity);
+                newPiece.name = "Piece(" + x + "," + y + ")";
+                newPiece.transform.parent = transform;
+
+                pieces[x, y] = newPiece.GetComponent<Skulls>();
+                pieces[x, y].Init(x, y, this, PieceType.Normal);
+
+                if (pieces [x, y].IsMovable())
+                {
+                    pieces[x, y].MovableComponent.Move(x, y, 0);
+                }
             }
         }
     }
@@ -50,5 +70,10 @@ public class GridManager : MonoBehaviour
     void Update()
     {
         
+    }
+
+    public Vector3 GetWorldPosition(int x, int y, int z)
+    {
+        return new Vector3(transform.position.x - gridX / 2.0f + x, transform.position.y + gridY / 2.0f - y, z);
     }
 }
