@@ -41,7 +41,7 @@ public class GridManager : MonoBehaviour
         {
             for (int y = 0; y < gridY; y++)
             {
-                GameObject background = (GameObject)Instantiate(backgroundPrefab, GetWorldPosition(x, y, 0), Quaternion.identity);
+                GameObject background = (GameObject)Instantiate(backgroundPrefab, GetWorldPosition(x, y), Quaternion.identity);
                 background.transform.parent = transform;
             }
         }
@@ -60,7 +60,12 @@ public class GridManager : MonoBehaviour
 
                 if (pieces [x, y].IsMovable())
                 {
-                    pieces[x, y].MovableComponent.Move(x, y, 0);
+                    pieces[x, y].MovableComponent.Move(x, y);
+                }
+
+                if (pieces[x, y].IsColored())
+                {
+                    pieces[x, y].SkullsComponent.SetColor((SkullsColor.ColorType)Random.Range(0, pieces[x, y].SkullsComponent.NumColors));
                 }
             }
         }
@@ -72,8 +77,8 @@ public class GridManager : MonoBehaviour
         
     }
 
-    public Vector3 GetWorldPosition(int x, int y, int z)
+    public Vector3 GetWorldPosition(int x, int y)
     {
-        return new Vector3(transform.position.x - gridX / 2.0f + x, transform.position.y + gridY / 2.0f - y, z);
+        return new Vector3(transform.position.x - gridX / 2.0f + x, transform.position.y + gridY / 2.0f - y);
     }
 }

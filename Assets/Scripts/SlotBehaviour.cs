@@ -12,11 +12,11 @@ public class SlotBehaviour : MonoBehaviour
         piece = GetComponent<Skulls>();
     }
     
-    public void Move(int newX, int newY, int newZ)
+    public void Move(int newX, int newY)
     {
         piece.x = newX;
         piece.y = newY;
 
-        piece.transform.localPosition = piece.gridRef.GetWorldPosition(newX, newY, newZ);
+        piece.transform.localPosition = piece.gridRef.GetWorldPosition(newX, newY);
     }
 }

@@ -156,7 +156,9 @@ MonoBehaviour:
   gridY: 9
   piecePrefabs:
   - type: 0
-    prefab: {fileID: 6152306784179005062, guid: 28f27398545efd24b8c8eec473cedd9f, type: 3}
+    prefab: {fileID: 1421174888779349197, guid: d6690abdf734e4644a252d8c34f74a9e, type: 3}
+  - type: 0
+    prefab: {fileID: 2823572064229740069, guid: aeb999b3cbf792a43a846007569ff7e0, type: 3}
   backgroundPrefab: {fileID: 1952433381491397508, guid: ae77c622b81cff146801073ca90f3933, type: 3}
 --- !u!4 &552426734
 Transform:
@@ -387,6 +389,26 @@ PrefabInstance:
       propertyPath: skullPrefab.Array.data[0].prefab
       value: 
       objectReference: {fileID: 1421174888779349197, guid: d6690abdf734e4644a252d8c34f74a9e, type: 3}
+    - target: {fileID: 5978774521103332845, guid: 29e3e4ee3e2aaf740a499c64889561cd, type: 3}
+      propertyPath: skullPrefab.Array.data[1].prefab
+      value: 
+      objectReference: {fileID: 2823572064229740069, guid: aeb999b3cbf792a43a846007569ff7e0, type: 3}
+    - target: {fileID: 5978774521103332845, guid: 29e3e4ee3e2aaf740a499c64889561cd, type: 3}
+      propertyPath: skullPrefab.Array.data[2].prefab
+      value: 
+      objectReference: {fileID: 1117742231541635222, guid: b25fb82f1fb36424889668ac2342219c, type: 3}
+    - target: {fileID: 5978774521103332845, guid: 29e3e4ee3e2aaf740a499c64889561cd, type: 3}
+      propertyPath: skullPrefab.Array.data[3].prefab
+      value: 
+      objectReference: {fileID: 5410133448140927003, guid: b6a2eb8f765bdf749b9e413b514baada, type: 3}
+    - target: {fileID: 5978774521103332845, guid: 29e3e4ee3e2aaf740a499c64889561cd, type: 3}
+      propertyPath: skullPrefab.Array.data[4].prefab
+      value: 
+      objectReference: {fileID: 5132524401355193395, guid: 29e3e4ee3e2aaf740a499c64889561cd, type: 3}
+    - target: {fileID: 5978774521103332845, guid: 29e3e4ee3e2aaf740a499c64889561cd, type: 3}
+      propertyPath: skullPrefab.Array.data[5].prefab
+      value: 
+      objectReference: {fileID: 2774661519061952754, guid: a3d30ee930368b9448d343d7c717e6af, type: 3}
     - target: {fileID: 6471489904232639358, guid: 29e3e4ee3e2aaf740a499c64889561cd, type: 3}
       propertyPath: x
       value: 0

@@ -49,21 +49,16 @@ public class Skulls : MonoBehaviour
     {
         get { return movableComponent; }
     }
+    private SkullsColor skullsComponent;
+    public SkullsColor SkullsComponent
+    {
+        get { return skullsComponent; }
+    }
 
     void Awake()
     {
         movableComponent = GetComponent<SlotBehaviour>();
-    }
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
+        skullsComponent = GetComponent<SkullsColor>();
     }
 
     public void Init(int _x, int _y, GridManager _grid, GridManager.PieceType _type)
@@ -77,5 +72,10 @@ public class Skulls : MonoBehaviour
     public bool IsMovable()
     {
         return movableComponent != null;
+    }
+
+    public bool IsColored()
+    {
+        return skullsComponent != null;
     }
 }
