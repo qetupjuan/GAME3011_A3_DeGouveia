@@ -1,189 +1,241 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
-
 
 public class GridManager : MonoBehaviour
 {
-    public BoardManager boardManager;
-    public Sprite[] pieces;
-    int width = 9;
-    int height = 14;
-    Node[,] board;
+    [SerializeField]
+    public int sizeX;
+    public int sizeY;
+    bool CanMove = false;
+    bool fast = true;
 
-    System.Random random;
+    [SerializeField]
+    Skulls[] skullsPrefabs;
+    Skulls[,] grid;
+
 
     void Start()
     {
-        
-    }
-    void StartGame()
-    {
-        string seed = getRandomSeed();
-        random = new System.Random(seed.GetHashCode());
-
-        InitializeBoard();
-    }
-
-    void InitializeBoard()
-    {
-        board = new Node[width, height];
-
-        for (int y = 0; y < height; y++)
+        grid = new Skulls[sizeX, sizeY * 2];
+        for (int i = 0; i < sizeX; i++)
         {
-            for (int x = 0; x < width; x++)
+            for (int j = 0; j < sizeY; j++)
             {
-                board[x, y] = new Node((boardManager.rows[y].row[x]) ? -1 : fillPiece(), new SlotBehaviour(x, y));
+                InstantiateTile(i, j);
             }
         }
+        Check();
     }
-
-    void VerifyBoard()
-    {
-        for (int x = 0; x < width; x++)
-        {
-            for (int y = 0; y < height; y++)
-            {
-                SlotBehaviour p = new SlotBehaviour(x, y);
-                int val = getValueAtPoint(p);
-                if (val <= 0) continue;
-
-
-            }
-        }
-    }
-
-    List<SlotBehaviour> isConnected(SlotBehaviour p, bool main)
-    {
-        List<SlotBehaviour> connected = new List<SlotBehaviour>();
-        int val = getValueAtPoint(p);
-        SlotBehaviour[] directions =
-        {
-            SlotBehaviour.up,
-            SlotBehaviour.right,
-            SlotBehaviour.down,
-            SlotBehaviour.left
-        };
-
-
-
-        foreach (SlotBehaviour dir in directions) //checks for 2 or more same skulls in the directions
-        {
-            List<SlotBehaviour> line = new List<SlotBehaviour>();
-
-            int same = 0;
-            for (int i = 1; i < 3; i++)
-            {
-                SlotBehaviour check = SlotBehaviour.add(p, SlotBehaviour.mult(dir, i));
-                if (getValueAtPoint(check) == val)
-                {
-                    line.Add(check);
-                    same++;
-                }
-            }
-
-            if(same > 1) // if there are more than 1 of the same shape in the direction then its a match
-            {
-                AddPoints(ref connected, line); //adds the points to the overarching connected list
-            }
-        }
-
-        for (int i = 0; i < 2; i++) //checking if we are in the middle of two of the same shapes
-        {
-            List<SlotBehaviour> line = new List<SlotBehaviour>();
-
-            int same = 0;
-            SlotBehaviour[] check = { SlotBehaviour.add(p, directions[i]), SlotBehaviour.add(p, directions[i + 2]) };
-            
-            foreach(SlotBehaviour next in check) //check both sides of the piece, adds them to the list if they are the same
-            {
-                if (getValueAtPoint(next) == val)
-                {
-                    line.Add(p);
-                    same++;
-                }
-            }
-
-            if (same > 1)
-            {
-                AddPoints(ref connected, line);
-            }
-        }
-        for (int i = 0; i < 4; i++) //check for 2x2
-        {
-            List<SlotBehaviour> square = new List<SlotBehaviour>();
-
-            int same = 0;
-            int next = i + 1;
-            if (next >= 4)
-            {
-                next -= 4;
-
-                SlotBehaviour[] check = { SlotBehaviour.add(p, directions[i]), SlotBehaviour.add(p, directions[next]), SlotBehaviour.add(p, SlotBehaviour.add(directions[i], directions[next])};
-                foreach (SlotBehaviour pnt in check) //check both sides of the piece, adds them to the list if they are the same
-                {
-                    if (getValueAtPoint(pnt) == val)
-                    {
-                        square.Add(p);
-                        same++;
-                    }
-                }
-                if (same > 2)
-                {
-                    AddPoints(ref connected, square);
-                }
-            }
-            if (main)
-            {
-
-            }
-        }
-    }
-
-    void AddPoints(ref List<SlotBehaviour> points, List<SlotBehaviour> add)
-    {
-
-    }
-
-    int fillPiece()
-    {
-        int val = 1;
-        val = (random.Next(0, 100) / (100 / pieces.Length)) + 1;
-        return val;
-    }
-
-    int getValueAtPoint(SlotBehaviour p)
-    {
-        return board[p.x, p.y].value;
-    }
-
     void Update()
     {
-        
-    }
-    string getRandomSeed()
-    {
-        string seed = "";
-        string acceptableChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz123456789!@#$%^&*()";
-        
-        for (int i = 0; i < 20; i++)
+        if (Input.GetKeyDown(KeyCode.Space))
         {
-            seed += acceptableChars[Random.Range(0, acceptableChars.Length)];
+            string s = "";
+            for (int j = sizeY * 2 - 1; j >= 0; j--)
+            {
+                for (int i = sizeX - 1; i >= 0; i--)
+                {
+                    if (grid[i, j] != null)
+                        s += grid[i, j].name;
+                    else
+                        s += "NULL";
+                }
+                s += "\n";
+            }
+            print(s);
+        }
+    }
+
+    int moveX = -1;
+    int moveY = -1;
+    public void Move(Skulls skull)
+    {
+        if (!CanMove)
+            return;
+        moveX = skull.x;
+        moveY = skull.y;
+    }
+    public void Drop(Skulls skull)
+    {
+        if (!CanMove)
+            return;
+
+        if (moveX == -1 || moveY == -1)
+            return;
+
+        SwapTiles(moveX, moveY, skull.x, skull.y);
+
+        moveX = -1;
+        moveY = -1;
+    }
+    void SwapTiles(int x1, int y1, int x2, int y2)
+    {
+        fast = false;
+        if (x1 == x2 && y1 == y2)
+            return;
+        MoveTile(x1, y1, x2, y2);
+
+        List<Skulls> CheckSkull = CheckHorizontalMatches();
+        CheckSkull.AddRange(CheckVerticalMatches());
+
+        if (CheckSkull.Count == 0)
+        {
+            MoveTile(x1, y1, x2, y2);
+        }
+        Check();
+    }
+    void Check()
+    {
+        List<Skulls> DestroySkull = CheckHorizontalMatches();
+        DestroySkull.AddRange(CheckVerticalMatches());
+
+        DestroySkull = DestroySkull.Distinct().ToList();
+
+        bool sw = DestroySkull.Count == 0;
+
+        for (int i = 0; i < DestroySkull.Count; i++)
+        {
+            if (DestroySkull[i] != null)
+            {
+                Destroy(DestroySkull[i].gameObject);
+                InstantiateTile(DestroySkull[i].x, DestroySkull[i].y + sizeY);
+            }
         }
 
-        return seed;
+        if (!sw)
+            StartCoroutine(Gravity());
     }
-}
-
-[System.Serializable]
-public class Node
-{
-    public int value;
-    public SlotBehaviour index;
-
-    public Node(int v, SlotBehaviour i)
+    IEnumerator Gravity()
     {
-        value = v;
-        index = i;
+        bool Sw = true;
+        while (Sw)
+        {
+            CanMove = false;
+            Sw = false;
+            for (int j = 0; j < sizeY * 2; j++)
+            {
+                for (int i = 0; i < sizeX; i++)
+                {
+                    if (Fall(i, j))
+                    {
+                        Sw = true;
+                    }
+                }
+
+                if (j <= sizeY && !fast)
+                {
+                    yield return null;
+
+                }
+            }
+        }
+        yield return null;
+        CanMove = true;
+        Check();
+
+    }
+    bool Fall(int x, int y)
+    {
+        if (x < 0 || y <= 0 || x >= sizeX || y >= sizeY * 2)
+            return false;
+        if (grid[x, y] == null)
+            return false;
+        if (grid[x, y - 1] != null)
+            return false;
+
+        MoveTile(x, y, x, y - 1);
+        return true;
+    }
+    List<Skulls> CheckHorizontalMatches()
+    {
+        List<Skulls> CheckSkull = new List<Skulls>();
+        List<Skulls> ReturnSkull = new List<Skulls>();
+        string Type = "";
+
+        for (int j = 0; j < sizeY; j++)
+        {
+            for (int i = 0; i < sizeX; i++)
+            {
+                if (grid[i, j].type != Type)
+                {
+                    if (CheckSkull.Count >= 3)
+                    {
+                        ReturnSkull.AddRange(CheckSkull);
+                    }
+                    CheckSkull.Clear();
+                }
+                Type = grid[i, j].type;
+                CheckSkull.Add(grid[i, j]);
+            }
+
+            if (CheckSkull.Count >= 3)
+            {
+                ReturnSkull.AddRange(CheckSkull);
+            }
+            CheckSkull.Clear();
+        }
+        return ReturnSkull;
+    }
+    List<Skulls> CheckVerticalMatches()
+    {
+        List<Skulls> CheckSkull = new List<Skulls>();
+        List<Skulls> ReturnSkull = new List<Skulls>();
+        string Type = "";
+
+        for (int i = 0; i < sizeX; i++)
+        {
+            for (int j = 0; j < sizeY; j++)
+            {
+                if (grid[i, j].type != Type)
+                {
+                    if (CheckSkull.Count >= 3)
+                    {
+                        ReturnSkull.AddRange(CheckSkull);
+                    }
+                    CheckSkull.Clear();
+                }
+                Type = grid[i, j].type;
+                CheckSkull.Add(grid[i, j]);
+            }
+
+            if (CheckSkull.Count >= 3)
+            {
+                ReturnSkull.AddRange(CheckSkull);
+            }
+            CheckSkull.Clear();
+        }
+        return ReturnSkull;
+    }
+    void MoveTile(int x1, int y1, int x2, int y2)
+    {
+        if (grid[x1, y1] != null)
+            grid[x1, y1].transform.position = new Vector3(x2, y2);
+
+
+        if (grid[x2, y2] != null)
+            grid[x2, y2].transform.position = new Vector3(x1, y1);
+
+
+        Skulls temp = grid[x1, y1];
+        grid[x1, y1] = grid[x2, y2];
+        grid[x2, y2] = temp;
+
+        if (grid[x1, y1] != null)
+            grid[x1, y1].ChangePosition(x1, y1);
+        if (grid[x2, y2] != null)
+            grid[x2, y2].ChangePosition(x2, y2);
+
+    }
+    void InstantiateTile(int x, int y)
+    {
+        Skulls go = Instantiate
+        (
+             skullsPrefabs[Random.Range(0, skullsPrefabs.Length)], new Vector3(x, y), Quaternion.identity, transform
+        ) as Skulls;
+
+        go.Constructor(this, x, y);
+        grid[x, y] = go;
     }
 }
