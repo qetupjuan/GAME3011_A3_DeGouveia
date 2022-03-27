@@ -15,6 +15,7 @@ public class GridManager : MonoBehaviour
     Skulls[] skullsPrefabs;
     Skulls[,] grid;
 
+    public AudioClip destruction;
 
     void Start()
     {
@@ -23,29 +24,13 @@ public class GridManager : MonoBehaviour
         {
             for (int j = 0; j < sizeY; j++)
             {
-                InstantiateTile(i, j);
+                InstantiateSkull(i, j);
             }
         }
         Check();
     }
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            string s = "";
-            for (int j = sizeY * 2 - 1; j >= 0; j--)
-            {
-                for (int i = sizeX - 1; i >= 0; i--)
-                {
-                    if (grid[i, j] != null)
-                        s += grid[i, j].name;
-                    else
-                        s += "NULL";
-                }
-                s += "\n";
-            }
-            print(s);
-        }
     }
 
     int moveX = -1;
@@ -73,24 +58,20 @@ public class GridManager : MonoBehaviour
     void SwapSkulls(int x1, int y1, int x2, int y2)
     {
         fast = false;
-        if (x1 == x2 && y1 == y2)
-            return;
-        if (x1 == -1 || y1 == -1)
-            return;
-        if (Mathf.Abs(x1 - x2) > 1)
-            return;
-        if (Mathf.Abs(y1 - y2) > 1)
-            return;
-        if (Mathf.Abs(y1 - y2) + Mathf.Abs(x1 - x2) > 1)
-            return;
-        MoveTile(x1, y1, x2, y2);
+        if (x1 == x2 && y1 == y2) { return; }
+        if (x1 == -1 || y1 == -1) { return; }
+        if (Mathf.Abs(x1 - x2) > 1) { return; }
+        if (Mathf.Abs(y1 - y2) > 1) { return; }
+        if (Mathf.Abs(y1 - y2) + Mathf.Abs(x1 - x2) > 1) { return; }
+
+        MoveSkull(x1, y1, x2, y2);
 
         List<Skulls> CheckSkull = CheckHorizontalMatches();
         CheckSkull.AddRange(CheckVerticalMatches());
 
         if (CheckSkull.Count == 0)
         {
-            MoveTile(x1, y1, x2, y2);
+            MoveSkull(x1, y1, x2, y2);
         }
         Check();
     }
@@ -107,8 +88,9 @@ public class GridManager : MonoBehaviour
         {
             if (DestroySkull[i] != null)
             {
+                MusicManager.instance.PlayClip(destruction);
                 Destroy(DestroySkull[i].gameObject);
-                InstantiateTile(DestroySkull[i].x, DestroySkull[i].y + sizeY);
+                InstantiateSkull(DestroySkull[i].x, DestroySkull[i].y + sizeY);
             }
         }
 
@@ -153,7 +135,7 @@ public class GridManager : MonoBehaviour
         if (grid[x, y - 1] != null)
             return false;
 
-        MoveTile(x, y, x, y - 1);
+        MoveSkull(x, y, x, y - 1);
         return true;
     }
     List<Skulls> CheckHorizontalMatches()
@@ -216,7 +198,7 @@ public class GridManager : MonoBehaviour
         }
         return ReturnSkull;
     }
-    void MoveTile(int x1, int y1, int x2, int y2)
+    void MoveSkull(int x1, int y1, int x2, int y2)
     {
         if (grid[x1, y1] != null)
             grid[x1, y1].transform.position = new Vector3(x2, y2);
@@ -236,7 +218,7 @@ public class GridManager : MonoBehaviour
             grid[x2, y2].ChangePosition(x2, y2);
 
     }
-    void InstantiateTile(int x, int y)
+    void InstantiateSkull(int x, int y)
     {
         Skulls go = Instantiate
         (
