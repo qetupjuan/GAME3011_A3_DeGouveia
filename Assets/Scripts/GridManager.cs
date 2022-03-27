@@ -65,15 +65,23 @@ public class GridManager : MonoBehaviour
         if (moveX == -1 || moveY == -1)
             return;
 
-        SwapTiles(moveX, moveY, skull.x, skull.y);
+        SwapSkulls(moveX, moveY, skull.x, skull.y);
 
         moveX = -1;
         moveY = -1;
     }
-    void SwapTiles(int x1, int y1, int x2, int y2)
+    void SwapSkulls(int x1, int y1, int x2, int y2)
     {
         fast = false;
         if (x1 == x2 && y1 == y2)
+            return;
+        if (x1 == -1 || y1 == -1)
+            return;
+        if (Mathf.Abs(x1 - x2) > 1)
+            return;
+        if (Mathf.Abs(y1 - y2) > 1)
+            return;
+        if (Mathf.Abs(y1 - y2) + Mathf.Abs(x1 - x2) > 1)
             return;
         MoveTile(x1, y1, x2, y2);
 
