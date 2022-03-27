@@ -1852,13 +1852,15 @@ MonoBehaviour:
       m_Calls: []
   m_text: 'Instructions:
 
-    Control the syringe with the mouse
+    Drag the skulls to possible matches to make a line
+    of 3 or more
 
-    Attempt to
-    unlock by holding A or S
+    Reach the goal before the time runs out
 
-    Harder the difficulty the smaller the range to
-    unlock it'
+    The harder the
+    difficulty the bigger the goal is
+
+    also shorter time frame to achieve it'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}

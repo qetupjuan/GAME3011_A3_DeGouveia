@@ -37,14 +37,12 @@ public class Skulls : MonoBehaviour
     void OnMouseDown()
     {
         gridManager.Move(this);
-        print(string.Format("Drag {0},{1}", x, y));
     }
     void OnMouseOver()
     {
         if (Input.GetMouseButtonUp(0))
         {
             gridManager.Drop(this);
-            print(string.Format("Drop {0},{1}", x, y));
         }
     }
 }

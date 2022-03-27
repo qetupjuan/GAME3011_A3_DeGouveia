@@ -8,17 +8,32 @@ public class GridManager : MonoBehaviour
     [SerializeField]
     public int sizeX;
     public int sizeY;
+    public int score = 0;
+    public int goal = 600;
+    public float timer = 90;
     bool CanMove = false;
     bool fast = true;
+    int moveX = -1;
+    int moveY = -1;
+
 
     [SerializeField]
     Skulls[] skullsPrefabs;
     Skulls[,] grid;
+    public GameObject win;
+    public GameObject lose;
+
+    [SerializeField]
+    private TMPro.TextMeshProUGUI scoreText;
+    [SerializeField]
+    private TMPro.TextMeshProUGUI timeText;
 
     public AudioClip destruction;
 
     void Start()
     {
+        scoreText.text = "Score: " + score.ToString();
+        timeText.text = "Time: " + timer.ToString();
         grid = new Skulls[sizeX, sizeY * 2];
         for (int i = 0; i < sizeX; i++)
         {
@@ -31,30 +46,21 @@ public class GridManager : MonoBehaviour
     }
     void Update()
     {
+        if (timer < 0)
+        {
+            lose.SetActive(true);
+        }
+        else if(score >= goal)
+        {
+            win.SetActive(true);
+        }
+        else
+        {
+            timer -= Time.deltaTime;
+            timeText.text = "Time: " + (int)timer;
+        }
     }
 
-    int moveX = -1;
-    int moveY = -1;
-    public void Move(Skulls skull)
-    {
-        if (!CanMove)
-            return;
-        moveX = skull.x;
-        moveY = skull.y;
-    }
-    public void Drop(Skulls skull)
-    {
-        if (!CanMove)
-            return;
-
-        if (moveX == -1 || moveY == -1)
-            return;
-
-        SwapSkulls(moveX, moveY, skull.x, skull.y);
-
-        moveX = -1;
-        moveY = -1;
-    }
     void SwapSkulls(int x1, int y1, int x2, int y2)
     {
         fast = false;
@@ -89,6 +95,8 @@ public class GridManager : MonoBehaviour
             if (DestroySkull[i] != null)
             {
                 MusicManager.instance.PlayClip(destruction);
+                score += 15;
+                scoreText.text = "Score: " + score.ToString();
                 Destroy(DestroySkull[i].gameObject);
                 InstantiateSkull(DestroySkull[i].x, DestroySkull[i].y + sizeY);
             }
@@ -124,7 +132,6 @@ public class GridManager : MonoBehaviour
         yield return null;
         CanMove = true;
         Check();
-
     }
     bool Fall(int x, int y)
     {
@@ -198,6 +205,26 @@ public class GridManager : MonoBehaviour
         }
         return ReturnSkull;
     }
+    public void Move(Skulls skull)
+    {
+        if (!CanMove)
+            return;
+        moveX = skull.x;
+        moveY = skull.y;
+    }
+    public void Drop(Skulls skull)
+    {
+        if (!CanMove)
+            return;
+
+        if (moveX == -1 || moveY == -1)
+            return;
+
+        SwapSkulls(moveX, moveY, skull.x, skull.y);
+
+        moveX = -1;
+        moveY = -1;
+    }
     void MoveSkull(int x1, int y1, int x2, int y2)
     {
         if (grid[x1, y1] != null)
@@ -227,5 +254,13 @@ public class GridManager : MonoBehaviour
 
         go.Constructor(this, x, y);
         grid[x, y] = go;
+    }
+    public void Won()
+    {
+        win.SetActive(true);
+    }
+    public void Lost()
+    {
+        lose.SetActive(true);
     }
 }

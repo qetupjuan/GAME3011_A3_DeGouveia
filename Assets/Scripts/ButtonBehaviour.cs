@@ -24,7 +24,7 @@ public class ButtonBehaviour : MonoBehaviour
 
     public void HardButton()
     {
-        SceneManager.LoadScene("HardScene");
+        SceneManager.LoadScene("HardeScene");
     }
 
     public void ExitButton()
